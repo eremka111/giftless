@@ -1,37 +1,38 @@
-"""Some useful type definitions for transfer protocols
-"""
-import sys
-from typing import Any, Dict, List
-
-if sys.version_info >= (3, 8):
-    from typing import TypedDict
-else:
-    from typing_extensions import TypedDict
+"""Some useful type definitions for transfer protocols."""
+from typing import Any, TypedDict
 
 
 class ObjectAttributes(TypedDict):
-    """Type for object attributes sent in batch request
-    """
+    """Type for object attributes sent in batch request."""
+
     oid: str
     size: int
 
 
 class BasicUploadActions(TypedDict, total=False):
-    upload: Dict[str, Any]
-    verify: Dict[str, Any]
+    """Fundamental actions for upload."""
+
+    upload: dict[str, Any]
+    verify: dict[str, Any]
 
 
 class UploadObjectAttributes(ObjectAttributes, total=False):
+    """Convert BasicUploadActions to object attributes."""
+
     actions: BasicUploadActions
 
 
 class MultipartUploadActions(TypedDict, total=False):
-    init: Dict[str, Any]
-    commit: Dict[str, Any]
-    parts: List[Dict[str, Any]]
-    abort: Dict[str, Any]
-    verify: Dict[str, Any]
+    """Additional actions to support multipart uploads."""
+
+    init: dict[str, Any]
+    commit: dict[str, Any]
+    parts: list[dict[str, Any]]
+    abort: dict[str, Any]
+    verify: dict[str, Any]
 
 
 class MultipartUploadObjectAttributes(ObjectAttributes, total=False):
+    """Convert MultipartUploadActions to object attributes."""
+
     actions: MultipartUploadActions
