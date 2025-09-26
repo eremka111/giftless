@@ -1,21 +1,22 @@
-"""Storage related errors
-"""
-from typing import Optional
+"""Storage related errors."""
 
 
 class StorageError(RuntimeError):
-    """Base class for storage errors
-    """
-    code: Optional[int] = None
+    """Base class for storage errors."""
 
-    def as_dict(self):
-        return {"message": str(self),
-                "code": self.code}
+    code: int | None = None
+
+    def as_dict(self) -> dict[str, str | int | None]:
+        return {"message": str(self), "code": self.code}
 
 
-class ObjectNotFound(StorageError):
+class ObjectNotFoundError(StorageError):
+    """No such object exists."""
+
     code = 404
 
 
-class InvalidObject(StorageError):
+class InvalidObjectError(StorageError):
+    """Request is syntactically OK, but invalid (wrong fields, usually)."""
+
     code = 422

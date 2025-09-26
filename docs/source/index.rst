@@ -13,16 +13,15 @@ methods and authentication methods.
    :maxdepth: 2
    :caption: Contents:
 
-   quickstart
    installation
+   guides
    configuration
+   wsgi-middleware
    components
    development
    api
 
-Indices and tables
-==================
-
+Indices and Tables
+------------------
 * :ref:`genindex`
 * :ref:`modindex`
-* :ref:`search`
