@@ -1,95 +1,143 @@
+"""Storage base classes."""
 import mimetypes
-from abc import ABC
-from typing import Any, BinaryIO, Dict, Iterable, Optional
+from abc import ABC, abstractmethod
+from collections.abc import Iterable
+from typing import Any, BinaryIO
 
 from . import exc
 
+# TODO @athornton: Think about refactoring this; some deduplication of
+# `verify_object`, at least.
+
 
 class VerifiableStorage(ABC):
-    """A storage backend that supports object verification API
+    """A storage backend that supports object verification API.
 
     All streaming backends should be 'verifiable'.
     """
-    def verify_object(self, prefix: str, oid: str, size: int) -> bool:
-        """Check that object exists and has the right size
 
-        This method should not throw an error if the object does not exist, but return False
+    @abstractmethod
+    def verify_object(self, prefix: str, oid: str, size: int) -> bool:
+        """Check that object exists and has the right size.
+
+        This method should not throw an error if the object does not
+        exist, but return False.
         """
-        pass
 
 
 class StreamingStorage(VerifiableStorage, ABC):
-    """Interface for streaming storage adapters
-    """
+    """Interface for streaming storage adapters."""
+
+    @abstractmethod
     def get(self, prefix: str, oid: str) -> Iterable[bytes]:
         pass
 
+    @abstractmethod
     def put(self, prefix: str, oid: str, data_stream: BinaryIO) -> int:
         pass
 
+    @abstractmethod
     def exists(self, prefix: str, oid: str) -> bool:
         pass
 
+    @abstractmethod
     def get_size(self, prefix: str, oid: str) -> int:
         pass
 
-    def get_mime_type(self, prefix: str, oid: str) -> Optional[str]:
+    def get_mime_type(self, prefix: str, oid: str) -> str:
         return "application/octet-stream"
 
-    def verify_object(self, prefix: str, oid: str, size: int):
-        """Verify that an object exists
-        """
+    def verify_object(self, prefix: str, oid: str, size: int) -> bool:
+        """Verify that an object exists and has the right size."""
         try:
             return self.get_size(prefix, oid) == size
-        except exc.ObjectNotFound:
+        except exc.ObjectNotFoundError:
             return False
 
 
 class ExternalStorage(VerifiableStorage, ABC):
-    """Interface for streaming storage adapters
-    """
-    def get_upload_action(self, prefix: str, oid: str, size: int, expires_in: int,
-                          extra: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    """Interface for streaming storage adapters."""
+
+    @abstractmethod
+    def get_upload_action(
+        self,
+        prefix: str,
+        oid: str,
+        size: int,
+        expires_in: int,
+        extra: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         pass
 
-    def get_download_action(self, prefix: str, oid: str, size: int, expires_in: int,
-                            extra: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    @abstractmethod
+    def get_download_action(
+        self,
+        prefix: str,
+        oid: str,
+        size: int,
+        expires_in: int,
+        extra: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         pass
 
+    @abstractmethod
     def exists(self, prefix: str, oid: str) -> bool:
         pass
 
+    @abstractmethod
     def get_size(self, prefix: str, oid: str) -> int:
         pass
 
     def verify_object(self, prefix: str, oid: str, size: int) -> bool:
+        """Verify that object exists and has the correct size."""
         try:
             return self.get_size(prefix, oid) == size
-        except exc.ObjectNotFound:
+        except exc.ObjectNotFoundError:
             return False
 
 
 class MultipartStorage(VerifiableStorage, ABC):
-    def get_multipart_actions(self, prefix: str, oid: str, size: int, part_size: int, expires_in: int,
-                              extra: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    """Base class for storage that supports multipart uploads."""
+
+    @abstractmethod
+    def get_multipart_actions(
+        self,
+        prefix: str,
+        oid: str,
+        size: int,
+        part_size: int,
+        expires_in: int,
+        extra: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         pass
 
-    def get_download_action(self, prefix: str, oid: str, size: int, expires_in: int,
-                            extra: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    @abstractmethod
+    def get_download_action(
+        self,
+        prefix: str,
+        oid: str,
+        size: int,
+        expires_in: int,
+        extra: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         pass
 
+    @abstractmethod
     def exists(self, prefix: str, oid: str) -> bool:
         pass
 
+    @abstractmethod
     def get_size(self, prefix: str, oid: str) -> int:
         pass
 
     def verify_object(self, prefix: str, oid: str, size: int) -> bool:
+        """Verify that object exists and has the correct size."""
         try:
             return self.get_size(prefix, oid) == size
-        except exc.ObjectNotFound:
+        except exc.ObjectNotFoundError:
             return False
 
 
-def guess_mime_type_from_filename(filename: str) -> Optional[str]:
+def guess_mime_type_from_filename(filename: str) -> str | None:
+    """Based on the filename, guess what MIME type it is."""
     return mimetypes.guess_type(filename)[0]

@@ -4,8 +4,8 @@ Installation / Deployment
 You can install and run Giftless in different ways, depending on your needs:
 
 ## Running from Docker image
-Giftless is available as a Docker image available from 
-[Docker Hub](https://hub.docker.com/r/datopian/giftless) 
+Giftless is available as a Docker image available from
+[Docker Hub](https://hub.docker.com/r/datopian/giftless)
 
 To run the latest version of Giftless in HTTP mode, listening
 on port 8080, run:
@@ -16,7 +16,7 @@ $ docker run --rm -p 8080:8080 datopian/giftless \
     --http 0.0.0.0:8080
 ```
 
-This will pull the image and run it. 
+This will pull the image and run it.
 
 Alternatively, to run in `WSGI` mode you can run:
 
@@ -29,18 +29,13 @@ This will require an HTTP server such as *nginx* to proxy HTTP requests to it.
 If you need to, you can also build the Docker image locally as described below.
 
 ## Running from Pypi package
-You can install Giftless into your Python environment of choice (3.7+) using pip. 
+You can install Giftless into your Python environment of choice (3.7+) using pip.
 It is recommended to install Giftless into a virtual environment:
 
 ```shell
 (venv) $ pip install uwsgi
 (venv) $ pip install giftless
 ```
-
-**IMPORTANT**: as of the time of writing, a bug in one of Giftless' dependencies
-requires that you explicitly install dependencies after installing using `pip`:
-
-    (venv) $ pip install -Ur https://raw.githubusercontent.com/datopian/giftless/master/requirements.txt
 
 Once installed, you can run Giftless locally with uWSGI:
 
@@ -64,7 +59,7 @@ $ git clone https://github.com/datopian/giftless.git
 $ cd giftless
 $ python3 -m venv venv
 $ source venv/bin/activate
-(venv) $ pip install -r requirements.txt
+(venv) $ pip install -r requirements/main.txt
 ```
 
 You can then proceed to run Giftless with a WSGI server as
@@ -78,4 +73,4 @@ production environment:
 (venv) $ ./flask-develop.sh
 ```
 
-In development mode, Giftless will be listening on <http://127.0.0.1:5000/> 
+In development mode, Giftless will be listening on `http://127.0.0.1:5000`
